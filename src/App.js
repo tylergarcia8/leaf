@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Map, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
+import { Card, Button, CardTitle, CardText, Form, FormGroup, Label, Input } from 'reactstrap';
 
 import './App.css';
 
@@ -20,6 +21,10 @@ class App extends Component {
     },
     haveUsersLocation: false,
     zoom: 2,
+    userMessage: {
+      name: '',
+      message: ''
+    }
   }
 
   componentDidMount() {
@@ -49,22 +54,67 @@ class App extends Component {
     });
   }
 
+  formSubmitted = (event) => {
+    event.preventDefault();
+    console.log(this.state.userMessage);
+  }
+
+  valueChanged = (event) => {
+    const { name, value } = event.target;
+    this.setState((prevState) => ({
+      userMessage: {
+        ...prevState.userMessage,
+        [name]: value
+      }
+    }))
+  }
+
+
   render() {
     const position = [this.state.location.lat, this.state.location.lng];
     return (
-      <Map className="map" center={position} zoom={this.state.zoom}>
-        <TileLayer
-          attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        { this.state.haveUsersLocation ?
-          <Marker position={position}>
-            <Popup>
-              A pretty CSS3 popup. <br /> Easily customizable.
-            </Popup>
-          </Marker> : ''
-        }
-      </Map>
+      <div className="map">
+        <Map className="map" center={position} zoom={this.state.zoom}>
+          <TileLayer
+            attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          { 
+            this.state.haveUsersLocation ?
+            <Marker position={position}>
+              <Popup>
+                A pretty CSS3 popup. <br /> Easily customizable.
+              </Popup>
+            </Marker> : ''
+          }
+        </Map>
+        <Card body className="messages-form">
+          <CardTitle>Welcome to Wordly</CardTitle>
+          <CardText>Leave a message with your location!</CardText>
+          <CardText>Thanks for stopping by! </CardText>
+          <Form onSubmit={this.formSubmitted}>
+            <FormGroup>
+              <Label for="name">Name</Label>
+              <Input
+                onChange={this.valueChanged}
+                type="text" 
+                name="name" 
+                id="name" 
+                placeholder="Enter your name" />
+            </FormGroup>
+            <FormGroup>
+              <Label for="message">Message</Label>
+              <Input 
+                onChange={this.valueChanged}
+                type="textarea" 
+                name="message" 
+                id="message" 
+                placeholder="Enter your message" />
+            </FormGroup>
+            <Button type="submit" color="info" disabled={!this.state.haveUsersLocation}>Send</Button>
+          </Form>
+        </Card>
+      </div>
     );
   }
 }
